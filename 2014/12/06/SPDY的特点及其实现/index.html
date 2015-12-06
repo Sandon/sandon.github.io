@@ -3,17 +3,33 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Sandon&#39;blog</title>
+  <title>SPDY的特点及其实现 - Sandon&#39;blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Sandon'blog">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="本文是想探究针对SPDY的特点，是怎么从协议层面去实现的，由哪些协议层面的机制去保证的文章的思路：SPDY要实现的目标是什么 -&amp;gt; 用什么功能去实现 -&amp;gt; 这些功能又是怎么实现
+一. SPDY 的目标SPDY最最最主要的目标是：减少延迟；
+二. SPDY特点
+Multiplexed streams
+Request prioritization
+HTTP header compressi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SPDY的特点及其实现">
+<meta property="og:url" content="http://yoursite.com/2014/12/06/SPDY的特点及其实现/index.html">
 <meta property="og:site_name" content="Sandon'blog">
-<meta property="og:description">
+<meta property="og:description" content="本文是想探究针对SPDY的特点，是怎么从协议层面去实现的，由哪些协议层面的机制去保证的文章的思路：SPDY要实现的目标是什么 -&amp;gt; 用什么功能去实现 -&amp;gt; 这些功能又是怎么实现
+一. SPDY 的目标SPDY最最最主要的目标是：减少延迟；
+二. SPDY特点
+Multiplexed streams
+Request prioritization
+HTTP header compressi">
+<meta property="og:updated_time" content="2015-12-06T06:52:44.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Sandon'blog">
-<meta name="twitter:description">
+<meta name="twitter:title" content="SPDY的特点及其实现">
+<meta name="twitter:description" content="本文是想探究针对SPDY的特点，是怎么从协议层面去实现的，由哪些协议层面的机制去保证的文章的思路：SPDY要实现的目标是什么 -&amp;gt; 用什么功能去实现 -&amp;gt; 这些功能又是怎么实现
+一. SPDY 的目标SPDY最最最主要的目标是：减少延迟；
+二. SPDY特点
+Multiplexed streams
+Request prioritization
+HTTP header compressi">
   
   
     <link rel="icon" href="/favicon.png">
@@ -51,51 +67,15 @@
     </div>
   </div>
 </header>
-    <section id="main" class="outer">
-      <article id="post-test" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-SPDY的特点及其实现" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/12/06/test/">test</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/12/06/test/" class="article-date">
-  <time datetime="2015-12-06T03:47:21.000Z" itemprop="datePublished">2015-12-06</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>haha</p>
-
-      
-    </div>
-    
-    
-  </div>
-  
-</article>
-
-
-    
-      <article id="post-SPDY的特点及其实现" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/06/SPDY的特点及其实现/">SPDY的特点及其实现</a>
+    <h1 class="article-title" itemprop="name">
+      SPDY的特点及其实现
     </h1>
   
 
@@ -140,13 +120,36 @@
       
     </div>
     
+      <div class="article-toc">
+        <h3>目录</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一-_SPDY_的目标"><span class="toc-number">1.</span> <span class="toc-text">一. SPDY 的目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二-_SPDY特点"><span class="toc-number">2.</span> <span class="toc-text">二. SPDY特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三-_SPDY特点的实现"><span class="toc-number">3.</span> <span class="toc-text">三. SPDY特点的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#特点一（Multiplexed_streams）的实现："><span class="toc-number">3.1.</span> <span class="toc-text">特点一（Multiplexed streams）的实现：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#特点二（Request_prioritization）的实现"><span class="toc-number">3.2.</span> <span class="toc-text">特点二（Request prioritization）的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#特点三（HTTP_header_compression）的实现"><span class="toc-number">3.3.</span> <span class="toc-text">特点三（HTTP header compression）的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#特点四（Server_push）的实现"><span class="toc-number">3.4.</span> <span class="toc-text">特点四（Server push）的实现</span></a></li></ol></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        
+      </footer>
     
   </div>
   
+    
+<nav id="article-nav">
+  
+    <a href="/2015/12/06/test/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          test
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
 </article>
 
-
-    </section>
+</section>
     <footer id="footer">
   
   <div class="outer">
